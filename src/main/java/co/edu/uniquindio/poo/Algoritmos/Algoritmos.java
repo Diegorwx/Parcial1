@@ -2,6 +2,7 @@ package co.edu.uniquindio.poo.Algoritmos;
 
 import co.edu.uniquindio.poo.modelo.Paquete;
 
+import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -89,4 +90,5 @@ public final class Algoritmos {
         return criterio.compare(mayorIzquierda, mayorDerecha) >= 0
                 ? mayorIzquierda : mayorDerecha;
     }
+
 }

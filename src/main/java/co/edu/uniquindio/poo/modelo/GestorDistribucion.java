@@ -21,7 +21,7 @@ public class GestorDistribucion {
     private final HashMap<String, String> asignaciones = new HashMap<>();
 
 
-    private List<String> codigosOrdenados = null;
+    private List<Paquete> paquetesOrdenados = null;
 
     public void registrarPaquete(Paquete paquete){
         Objects.requireNonNull(paquete, "El paquete no puede ser nulo");
@@ -34,7 +34,7 @@ public class GestorDistribucion {
         paquetesPorDestino.computeIfAbsent(paquete.getDestino(), k -> new ArrayList<>()).add(paquete);
         municipios.add(paquete.getDestino());
         colaDespacho.offer(paquete);
-        codigosOrdenados = null;
+        paquetesOrdenados = null;
     }
 
     public Optional<Paquete> consultarPaquete(String codigo){
@@ -92,22 +92,22 @@ public class GestorDistribucion {
         return orden;
     }
 
-    public Optional<Paquete> busquedaBinariaPorCodigo(String codigo){
-        if (codigosOrdenados == null) {
-            codigosOrdenados = new ArrayList<>(indicePorCodigo.keySet());
-            Collections.sort(codigosOrdenados, ORDENADOR);
+    public Optional<Paquete> busquedaBinariaPorCodigo(String codigo) {
+        if (paquetesOrdenados == null) {
+            paquetesOrdenados = new ArrayList<>(registrados);
+            Collections.sort(paquetesOrdenados);        // orden natural: por código
         }
-        int posicion = Algortitmos.busquedaBinaria(codigosOrdenados, codigo, ORDENADOR);
+        int posicion = Algoritmos.busquedaBinaria(paquetesOrdenados, codigo);
         if (posicion < 0) {
             return Optional.empty();
         }
-        return Optional.of(indicePorCodigo.get(codigosOrdenados.get(posicion)));
+        return Optional.of(paquetesOrdenados.get(posicion));
     }
 
     public Optional<Paquete> paqueteMayorPeso(){
         if (registrados.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(Algoritmos.mayorDivideVenceras(registrados, CriteriosPaquete.PESO));
+        return Optional.of(Algoritmos.mayorDivideVenceras(registrados, CriteriosPaquete.PESO_ASC));
     }
 }
