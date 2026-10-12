@@ -1,20 +1,13 @@
 package co.edu.uniquindio.poo.modelo;
 
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.TreeSet;
+import co.edu.uniquindio.poo.Algoritmos.Algoritmos;
+import co.edu.uniquindio.poo.quindioexpress.MiListaEnlazada;
 
-import co.edu.uniquindio.poo.quindioexpress.MiListaEnlasada;
+import java.text.Collator;
+import java.util.*;
 
 public class GestorDistribucion {
-    private static final  Collator ORDENADOR = Collator.getInstance("es,CO");
+    private static final  Collator ORDENADOR = Collator.getInstance(Locale.forLanguageTag("es-CO"));
 
     private final ArrayList<Paquete> registrados = new ArrayList<>();
     private final ArrayList<Paquete> pendientes = new ArrayList<>();
@@ -23,7 +16,7 @@ public class GestorDistribucion {
     private final HashMap<String, List<Paquete>> paquetesPorDestino = new HashMap<>();
     private final HashSet<String> municipios = new HashSet<>();
     private final PriorityQueue<Paquete> colaDespacho = new PriorityQueue<>(CriteriosPaquete.DESPACHO);
-    private final MiListaEnlasada<Paquete> historial = new MiListaEnlasada<>();
+    private final MiListaEnlazada<Paquete> historial = new MiListaEnlazada<>();
     private final HashMap<String,Repartidor> repartidores = new HashMap<>();
     private final HashMap<String, String> asignaciones = new HashMap<>();
 
@@ -31,7 +24,7 @@ public class GestorDistribucion {
     private List<String> codigosOrdenados = null;
 
     public void registrarPaquete(Paquete paquete){
-        Object.requireNonNull(paquete, "El paquete no puede ser nulo");
+        Objects.requireNonNull(paquete, "El paquete no puede ser nulo");
         if(indicePorCodigo.containsKey(paquete.getCodigo())){
             throw new IllegalArgumentException("El paquete ya ha sido registrado");
         }
