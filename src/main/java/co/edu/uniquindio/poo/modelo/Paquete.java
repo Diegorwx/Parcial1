@@ -2,7 +2,6 @@ package co.edu.uniquindio.poo.modelo;
 
 import java.util.Objects;
 
-
 /**
  * Paquete
  */
@@ -36,8 +35,6 @@ public final class Paquete implements Comparable<Paquete>{
             
 
     }
-
-    
 
     public String getCodigo() { return codigo; }
 
@@ -82,8 +79,6 @@ public final class Paquete implements Comparable<Paquete>{
         return String.format("%s (%s, %.1f kg, prioridad %d, %d min)",
                 codigo, destino, peso, prioridad, tiempoEstimado);
     }
-
-
 
 
 }

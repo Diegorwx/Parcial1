@@ -29,7 +29,7 @@ public class Repartidor {
     
     public void liberar() { this.disponible = true; }
 
-    public void noDisponible() { this.disponible = false; }
+    public void marcarNoDisponible() { this.disponible = false; }
 
     public void asignar() {
         if (!disponible) {
