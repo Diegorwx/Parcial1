@@ -81,5 +81,40 @@ public class GestorDistribucion {
     }
 
 
+    public Optional<Paquete> siguientePorLlegada(){
+        return pendientes.isEmpty() ? Optional.empty() : Optional.of(pendientes.get(0));
+    }
     
+
+    public Optional<Paquete> siguienteParDespacho(){
+        return Optional.ofNullable(colaDespacho.peek());
+    }
+
+    public List<Paquete> ordenDespachoCompleto(){
+        PriorityQueue<Paquete> copia = new PriorityQueue<>(colaDespacho);
+        List<Paquete> orden = new ArrayList<>(copia.size());
+        while (!copia.isEmpty()) {
+            orden.add(copia.poll());
+        }
+        return orden;
+    }
+
+    public Optional<Paquete> busquedaBinariaPorCodigo(String codigo){
+        if (codigosOrdenados == null) {
+            codigosOrdenados = new ArrayList<>(indicePorCodigo.keySet());
+            Collections.sort(codigosOrdenados, ORDENADOR);
+        }
+        int posicion = Algortitmos.busquedaBinaria(codigosOrdenados, codigo, ORDENADOR);
+        if (posicion < 0) {
+            return Optional.empty();
+        }
+        return Optional.of(indicePorCodigo.get(codigosOrdenados.get(posicion)));
+    }
+
+    public Optional<Paquete> paqueteMayorPeso(){
+        if (registrados.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(Algoritmos.mayorDivideVenceras(registrados, CriteriosPaquete.PESO));
+    }
 }
