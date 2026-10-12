@@ -68,7 +68,7 @@ public final class Paquete implements Comparable<Paquete>{
         return codigo.equals(((Paquete) o).codigo);
     }
     
-        @Override
+    @Override
     public int hashCode() {
         return Objects.hash(codigo);
     }
