@@ -13,4 +13,15 @@ public class Validaciones {
         }
         return valor.trim();
     }
+
+    public static String nombreLugar(String valor, String mensaje) {
+        String limpio = textoObligatorio(valor, mensaje).replaceAll("\\s+", " ");
+        StringBuilder sb = new StringBuilder();
+        for (String palabra : limpio.split(" ")) {
+            if (sb.length() > 0) sb.append(' ');
+            sb.append(palabra.substring(0, 1).toUpperCase())
+                    .append(palabra.substring(1).toLowerCase());
+        }
+        return sb.toString();
+    }
 }

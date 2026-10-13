@@ -91,7 +91,8 @@ public class GestorDistribucion {
 
     /** Peso total de un municipio. Usa recursión. */
     public double pesoTotalDeMunicipio(String municipio) {
-        return Algoritmos.pesoTotalPorDestino(registrados, municipio);
+        String m = Validaciones.nombreLugar(municipio, "El municipio no puede ser nulo ni vacío");
+        return Algoritmos.pesoTotalPorDestino(paquetesPorDestino.getOrDefault(m, List.of()), m);
     }
 
     /** Paquetes con prioridad mayor o igual a la indicada. Usa recursión. */
@@ -103,10 +104,12 @@ public class GestorDistribucion {
 
     /** Siguiente pendiente por orden de llegada. No lo retira. */
     public Optional<Paquete> siguientePorLlegada() {
-        if (pendientes.isEmpty()) {
-            return Optional.empty();
+        for (Paquete p : pendientes.values()) {
+            if (!asignaciones.containsKey(p.getCodigo())) {
+                return Optional.of(p);      // salta como máximo r asignados
+            }
         }
-        return Optional.of(pendientes.values().iterator().next());
+        return Optional.empty();
     }
 
     /** Siguiente pendiente por prioridad, tiempo y código. No lo retira. */
@@ -197,6 +200,7 @@ public class GestorDistribucion {
         }
         repartidor.asignar(); // lanza excepción si no está disponible
         asignaciones.put(codigoPaquete, identificacionRepartidor);
+        colaDespacho.remove(paquete); // // O(n), pero solo ocurre al asignar
     }
 
     /** Registra la entrega: retira el paquete de pendientes y lo agrega al historial. */
@@ -209,7 +213,6 @@ public class GestorDistribucion {
         asignaciones.remove(codigoPaquete);
         repartidores.get(identificacionRepartidor).liberar();
         pendientes.remove(codigoPaquete);   // O(1)
-        colaDespacho.remove(paquete);       // O(n)
         entregados.add(codigoPaquete);
         historial.agregar(paquete);         // O(1)
     }

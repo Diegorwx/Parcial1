@@ -16,7 +16,7 @@ public final class Paquete implements Comparable<Paquete>{
 
     public Paquete(String codigo,String destino , double peso, int prioridad, int tiempoEstimado){
         this.codigo = Validaciones.textoObligatorio(codigo ,"El codigo no puede ser nullo ni estar vacio");
-        this.destino = Validaciones.textoObligatorio(destino, "El destino no puede estar nullo ni vacio ");
+        this.destino = Validaciones.nombreLugar(destino, "El destino no puede ser nulo ni vacío");
 
         if (!(peso>0)){
             throw new IllegalArgumentException("El peso debe ser mayor a cero");
