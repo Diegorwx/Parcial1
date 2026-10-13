@@ -10,14 +10,21 @@ public class GestorDistribucion {
 
     private static final Collator ORDENADOR = Collator.getInstance(Locale.forLanguageTag("es-CO"));
 
+    // Registro de llegada y pendientes (A.1: LinkedHashMap, orden de registro + acceso por código)
     private final ArrayList<Paquete> registrados = new ArrayList<>();
-    private final ArrayList<Paquete> pendientes = new ArrayList<>();
-    private final HashMap<String, Paquete> indicePorCodigo = new HashMap<>();
-    private final HashSet<String> entregados = new HashSet<>();
-    private final HashMap<String, List<Paquete>> paquetesPorDestino = new HashMap<>();
+    private final LinkedHashMap<String, Paquete> pendientes = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Paquete> indicePorCodigo = new LinkedHashMap<>();
+
+    // Municipios (A.1: HashSet para municipios sin repetir)
     private final HashSet<String> municipios = new HashSet<>();
+    private final HashMap<String, List<Paquete>> paquetesPorDestino = new HashMap<>();
+
+    // Entregas y despacho (A.1: HashSet, PriorityQueue e historial propio)
+    private final HashSet<String> entregados = new HashSet<>();
     private final PriorityQueue<Paquete> colaDespacho = new PriorityQueue<>(CriteriosPaquete.DESPACHO);
     private final MiListaEnlazada<Paquete> historial = new MiListaEnlazada<>();
+
+    // Repartidores
     private final HashMap<String, Repartidor> repartidores = new HashMap<>();
     private final HashMap<String, String> asignaciones = new HashMap<>();
 
@@ -32,7 +39,7 @@ public class GestorDistribucion {
             throw new IllegalArgumentException("El paquete ya ha sido registrado: " + paquete.getCodigo());
         }
         registrados.add(paquete);
-        pendientes.add(paquete);
+        pendientes.put(paquete.getCodigo(), paquete);
         indicePorCodigo.put(paquete.getCodigo(), paquete);
         paquetesPorDestino.computeIfAbsent(paquete.getDestino(), k -> new ArrayList<>()).add(paquete);
         municipios.add(paquete.getDestino());
@@ -51,7 +58,7 @@ public class GestorDistribucion {
 
     /** Paquetes que aún no se han entregado, en orden de llegada. */
     public List<Paquete> pendientesEnOrdenDeLlegada() {
-        return Collections.unmodifiableList(pendientes);
+        return Collections.unmodifiableList(new ArrayList<>(pendientes.values()));
     }
 
     // ============================ MUNICIPIOS ============================
@@ -71,7 +78,7 @@ public class GestorDistribucion {
     /** Municipios con al menos un paquete pendiente, ordenados. */
     public Set<String> municipiosPendientes() {
         Set<String> conPendientes = new TreeSet<>(ORDENADOR);
-        for (Paquete paquete : pendientes) {
+        for (Paquete paquete : pendientes.values()) {
             conPendientes.add(paquete.getDestino());
         }
         return Collections.unmodifiableSet(conPendientes);
@@ -96,7 +103,10 @@ public class GestorDistribucion {
 
     /** Siguiente pendiente por orden de llegada. No lo retira. */
     public Optional<Paquete> siguientePorLlegada() {
-        return pendientes.isEmpty() ? Optional.empty() : Optional.of(pendientes.get(0));
+        if (pendientes.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(pendientes.values().iterator().next());
     }
 
     /** Siguiente pendiente por prioridad, tiempo y código. No lo retira. */
@@ -114,7 +124,7 @@ public class GestorDistribucion {
         return orden;
     }
 
-    /** Búsqueda binaria por código. Precondición: la copia ordenada se construye aquí mismo. */
+    /** Búsqueda binaria por código. La copia ordenada se construye aquí si no existe. */
     public Optional<Paquete> busquedaBinariaPorCodigo(String codigo) {
         if (paquetesOrdenados == null) {
             paquetesOrdenados = new ArrayList<>(registrados);
@@ -169,8 +179,8 @@ public class GestorDistribucion {
 
     /**
      * Asigna un paquete pendiente a un repartidor.
-     * Reglas: el paquete está pendiente y sin asignar, el repartidor existe y está disponible,
-     * y su zona coincide con el destino del paquete.
+     * Reglas: paquete pendiente y sin asignar, repartidor registrado y disponible,
+     * y zona del repartidor igual al destino del paquete.
      */
     public void asignarPaqueteARepartidor(String codigoPaquete, String identificacionRepartidor) {
         Paquete paquete = pendientePorCodigo(codigoPaquete);
@@ -185,14 +195,11 @@ public class GestorDistribucion {
             throw new IllegalStateException("La zona del repartidor (" + repartidor.getZona()
                     + ") no corresponde al destino del paquete (" + paquete.getDestino() + ")");
         }
-        repartidor.asignar(); // lanza IllegalStateException si no está disponible
+        repartidor.asignar(); // lanza excepción si no está disponible
         asignaciones.put(codigoPaquete, identificacionRepartidor);
     }
 
-    /**
-     * Registra una entrega: retira el paquete de pendientes, libera al repartidor
-     * y lo agrega al historial, que conserva el orden real de entrega.
-     */
+    /** Registra la entrega: retira el paquete de pendientes y lo agrega al historial. */
     public void registrarEntrega(String codigoPaquete) {
         Paquete paquete = pendientePorCodigo(codigoPaquete);
         String identificacionRepartidor = asignaciones.get(codigoPaquete);
@@ -201,10 +208,10 @@ public class GestorDistribucion {
         }
         asignaciones.remove(codigoPaquete);
         repartidores.get(identificacionRepartidor).liberar();
-        pendientes.remove(paquete);     // O(n)
-        colaDespacho.remove(paquete);   // O(n)
+        pendientes.remove(codigoPaquete);   // O(1)
+        colaDespacho.remove(paquete);       // O(n)
         entregados.add(codigoPaquete);
-        historial.agregar(paquete);     // O(1)
+        historial.agregar(paquete);         // O(1)
     }
 
     /** Historial de entregas en el orden real de entrega. */
