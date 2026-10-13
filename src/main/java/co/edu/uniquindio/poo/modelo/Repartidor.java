@@ -15,7 +15,7 @@ public class Repartidor {
     public Repartidor(String identificacion, String nombre, String zona) {
         this.identificacion = Validaciones.textoObligatorio(identificacion,"La identificacion no puede ser nula ni estar vacia");
         this.nombre = Validaciones.textoObligatorio(nombre,"El nombre no puede ser nulo ni estar vacio");
-        this.zona = Validaciones.textoObligatorio(zona,"La zona no puede ser nula ni estar vacia");
+        this.zona = Validaciones.nombreLugar(zona, "La zona no puede ser nula ni vacía");
         this.disponible = true;
     }
 
