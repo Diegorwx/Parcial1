@@ -23,7 +23,7 @@ public class GestorDistribucion {
     private final HashMap<String, List<Paquete>> paquetesPorDestino = new HashMap<>();
     private final HashSet<String> municipios = new HashSet<>();
     private final PriorityQueue<Paquete> colaDespacho = new PriorityQueue<>(CriteriosPaquete.DESPACHO);
-    private final MiListaEnlasada<Paquete> historial = new MiListaEnlasada<>();
+    private final MiListaEnlazada<Paquete> historial = new MiListaEnlazada<>();
     private final HashMap<String,Repartidor> repartidores = new HashMap<>();
     private final HashMap<String, String> asignaciones = new HashMap<>();
 
