@@ -1,20 +1,13 @@
 package co.edu.uniquindio.poo.modelo;
 
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.TreeSet;
+import co.edu.uniquindio.poo.Algoritmos.Algoritmos;
+import co.edu.uniquindio.poo.quindioexpress.MiListaEnlazada;
 
-import co.edu.uniquindio.poo.quindioexpress.MiListaEnlasada;
+import java.text.Collator;
+import java.util.*;
 
 public class GestorDistribucion {
-    private static final  Collator ORDENADOR = Collator.getInstance("es,CO");
+    private static final  Collator ORDENADOR = Collator.getInstance(Locale.forLanguageTag("es-CO"));
 
     private final ArrayList<Paquete> registrados = new ArrayList<>();
     private final ArrayList<Paquete> pendientes = new ArrayList<>();
@@ -28,10 +21,10 @@ public class GestorDistribucion {
     private final HashMap<String, String> asignaciones = new HashMap<>();
 
 
-    private List<String> codigosOrdenados = null;
+    private List<Paquete> paquetesOrdenados = null;
 
     public void registrarPaquete(Paquete paquete){
-        Object.requireNonNull(paquete, "El paquete no puede ser nulo");
+        Objects.requireNonNull(paquete, "El paquete no puede ser nulo");
         if(indicePorCodigo.containsKey(paquete.getCodigo())){
             throw new IllegalArgumentException("El paquete ya ha sido registrado");
         }
@@ -41,7 +34,7 @@ public class GestorDistribucion {
         paquetesPorDestino.computeIfAbsent(paquete.getDestino(), k -> new ArrayList<>()).add(paquete);
         municipios.add(paquete.getDestino());
         colaDespacho.offer(paquete);
-        codigosOrdenados = null;
+        paquetesOrdenados = null;
     }
 
     public Optional<Paquete> consultarPaquete(String codigo){
@@ -99,22 +92,22 @@ public class GestorDistribucion {
         return orden;
     }
 
-    public Optional<Paquete> busquedaBinariaPorCodigo(String codigo){
-        if (codigosOrdenados == null) {
-            codigosOrdenados = new ArrayList<>(indicePorCodigo.keySet());
-            Collections.sort(codigosOrdenados, ORDENADOR);
+    public Optional<Paquete> busquedaBinariaPorCodigo(String codigo) {
+        if (paquetesOrdenados == null) {
+            paquetesOrdenados = new ArrayList<>(registrados);
+            Collections.sort(paquetesOrdenados);        // orden natural: por código
         }
-        int posicion = Algortitmos.busquedaBinaria(codigosOrdenados, codigo, ORDENADOR);
+        int posicion = Algoritmos.busquedaBinaria(paquetesOrdenados, codigo);
         if (posicion < 0) {
             return Optional.empty();
         }
-        return Optional.of(indicePorCodigo.get(codigosOrdenados.get(posicion)));
+        return Optional.of(paquetesOrdenados.get(posicion));
     }
 
     public Optional<Paquete> paqueteMayorPeso(){
         if (registrados.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(Algoritmos.mayorDivideVenceras(registrados, CriteriosPaquete.PESO));
+        return Optional.of(Algoritmos.mayorDivideVenceras(registrados, CriteriosPaquete.PESO_ASC));
     }
 }

@@ -1,4 +1,6 @@
-package co.edu.uniquindio.poo.modelo;
+package co.edu.uniquindio.poo.quindioexpress;
+
+import co.edu.uniquindio.poo.modelo.ColeccionGenerica;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
